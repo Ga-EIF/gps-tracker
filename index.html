@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Envoi de coordonnées GPS</title>
+    <script>
+        // Fonction pour obtenir les coordonnées GPS
+        function getCoordinates() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(sendCoordinates);
+            } else {
+                alert("Géolocalisation non supportée par votre navigateur.");
+            }
+        }
+
+        // Fonction pour envoyer les coordonnées à GeoServer
+        function sendCoordinates(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+
+            // Créer l'objet GeoJSON avec les coordonnées GPS
+            const geojsonData = {
+                "type": "Feature",
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [longitude, latitude]
+                },
+                "properties": {
+                    "timestamp": new Date().toISOString()
+                }
+            };
+
+            // URL de l'API GeoServer qui attend une requête POST (à configurer)
+            const url = "http://tonserveur/geoserver/your-api-endpoint"; 
+
+            // Envoi des coordonnées GPS au serveur via une requête POST
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(geojsonData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Coordonnées envoyées avec succès", data);
+            })
+            .catch(error => {
+                console.error("Erreur d'envoi des données", error);
+            });
+        }
+
+        // Appel de la fonction pour obtenir les coordonnées
+        getCoordinates();
+    </script>
+</head>
+<body>
+    <h1>Envoi des coordonnées GPS</h1>
+    <button onclick="getCoordinates()">Envoyer mes coordonnées GPS</button>
+</body>
+</html>
